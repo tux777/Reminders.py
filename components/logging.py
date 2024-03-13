@@ -29,8 +29,8 @@ def flushLogs():
     
 # Logger object functions
 
-def newLogger(logFile: str):
-    logger = logging.getLogger(__name__)
+def newLogger(loggerName: str, logFile: str):
+    logger = logging.getLogger(loggerName)
     loggerHandler = logging.FileHandler(logFile)
     loggerHandler.setFormatter(logging.Formatter("[%(levelname)s:%(asctime)s] %(message)s"))
     logger.addHandler(loggerHandler)
