@@ -2,47 +2,60 @@ from components.logging import generateLogFile, newLogger, addCounter
 from plyer import notification
 import datetime
 import time
+import sys
+import json
+
+remindersFilePath = "components/reminders.json"
+
+def fixNotificationsTime(notifications):
+        for notificationData in notifications:
+            oldTime = notificationData["time"]
+            oldTime = oldTime.split(":")
+            oldTimeH = oldTime[0]
+            oldTimeM = oldTime[1]
+            
+            if oldTimeH[0] == "0":
+                oldTimeH = oldTimeH[1]
+                
+            if len(oldTimeH) > 1:
+                newTimeH = f"{oldTimeH[0]}{oldTimeH[1]}"
+            else:
+                newTimeH = f"{oldTimeH[0]}"
+            
+            if oldTimeM[0] == "0":
+                oldTimeM = oldTimeM[1]
+            
+            if len(oldTimeM) > 1:
+                newTimeM = f"{oldTimeM[0]}{oldTime[1]}"
+            else:
+                newTimeM = f"{oldTimeM[0]}"
+                
+            newTime = f"{newTimeH}:{newTimeM}"
+            notificationData["time"] = newTime
+    
 
 def startDaemon():
     # Logging
-    logFile = generateLogFile(__name__)
-    logger = newLogger(__name__, logFile)
+    logName = __file__.split("/")[-1].removesuffix(".py")
+    logFile = generateLogFile(logName)
+    logger = newLogger(logName, logFile)
     addCounter(logger)
+    sys.excepthook = lambda type, value, tb: logger.error(f"Caught '{type.__name__}' exception: {value}") # Hook exception to log it
 
     logger.info("Notification daemon started!")
-
-    notifications = []
-    for notificationData in notifications:
-        oldTime = notificationData["time"]
-        oldTime = oldTime.split(":")
-        oldTimeH = oldTime[0]
-        oldTimeM = oldTime[1]
-        
-        if oldTimeH[0] == 0:
-            oldTimeH.pop(0)
-            
-        if len(oldTimeH) > 1:
-            newTimeH = f"{oldTimeH[0]}{oldTimeH[1]}"
-        else:
-            newTimeH = f"{oldTimeH[0]}"
-        
-        if oldTimeM[0] == 0:
-            oldTimeM.pop(0)
-        
-        if len(oldTimeM) > 1:
-            newTimeM = f"{oldTimeM[0]}{oldTime[1]}"
-        else:
-            newTimeM = f"{oldTimeM[0]}"
-        
     
     while True:
+        # Loops every minute
+        # Update reminders every minute
+        with open(remindersFilePath, "r") as f:
+            reminders = json.load(f)
         # Check if notification needs to be sent
-        for notificationData in notifications:
-            if notificationData["time"] == f"{datetime.datetime.now().hour}:{datetime.datetime.now().minute}":
+        for reminderData in reminders.values():
+            if reminderData["time"] == f"{datetime.datetime.now().hour}:{datetime.datetime.now().minute}":
                 logger.info("Sending notification...")
                 notification.notify(
-                    title = notificationData["title"],
-                    message = notificationData["message"],
+                    title = reminderData["title"],
+                    message = reminderData["message"],
                     app_name = "",
                     timeout = 10
                 )

@@ -4,9 +4,12 @@ from components.logging import generateLogFile, newLogger, addCounter
 
 def main():
     # Logging
-    logFile = generateLogFile(__name__)
-    logger = newLogger(__name__, logFile)
+    
+    logName = __file__.split("/")[-1].removesuffix(".py")
+    logFile = generateLogFile(logName)
+    logger = newLogger(logName, logFile)
     addCounter(logger)
+    sys.excepthook = lambda type, value, tb: logger.error(f"Caught '{type.__name__}' exception: {value}") # Hook exception to log it
 
     # System Checks
     # OS Check
