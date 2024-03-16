@@ -1,11 +1,18 @@
-from components.logging import generateLogFile, newLogger, addCounter
 from plyer import notification
 import datetime
 import time
 import sys
 import json
+import os
 
-remindersFilePath = "components/reminders.json"
+if __name__ == "__main__":
+    from log import generateLogFile, newLogger, addCounter
+    remindersFilePath = "reminders.json"
+else:
+    from components.log import generateLogFile, newLogger, addCounter
+    remindersFilePath = "components/reminders.json"
+
+
 
 def fixNotificationsTime(notifications):
         for notificationData in notifications:
@@ -73,5 +80,5 @@ def startDaemon():
 def main():
     startDaemon()
 
-if __name__ == "__main___":
+if __name__ == "__main__":
     main()

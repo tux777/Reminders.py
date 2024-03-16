@@ -1,4 +1,4 @@
-from components.logging import newLogger, addCounter, generateLogFile, flushLogs
+from components.log import newLogger, addCounter, generateLogFile, flushLogs
 from colorama import Fore
 import json
 import sys
@@ -12,7 +12,7 @@ reminderObjFormat = {"title": "", "message": "", "time": ""}
 bold = "\033[1m"
 reset = "\033[0m"
 
-def main():
+def cli():
     # Logging
     logName = __file__.split("/")[-1].removesuffix(".py")
     logFile = generateLogFile(logName)
@@ -23,12 +23,12 @@ def main():
     with open(remindersFilePath, "r") as f:
             reminders = json.load(f)
     
-    
     while True:
         commandInput = input(f"{commandPrefix} ")
         command = commandInput.split(" ")
         commandName = command[0]
-        commandArgs = command.pop(0)
+        command.pop(0)
+        commandArgs = command
         
         # Executed after every command to get up to date json file 
         with open(remindersFilePath, "r") as f:
@@ -51,17 +51,30 @@ def main():
                 message = input(f"Message {commandPrefix} ")
                 time = input(f"Time {commandPrefix} ")
                 
-                newReminder = reminderObjFormat
+                newReminder = reminderObjFormat.copy()
                 newReminder["title"] = title
                 newReminder["message"] = message
                 newReminder["time"] = time
                 
                 reminders[name] = newReminder
+            case "delete":
+                if len(commandArgs) >= 1:
+                    reminderName = commandArgs[0]
+                    if reminderName in reminders:
+                        reminders.pop(reminderName)
+                    elif reminderName == "all":
+                        reminders.clear()
+                    else:
+                        logger.error(f"Reminder \"{reminderName}\" not found!")
+                        
             case "save":
                 with open(remindersFilePath, "w") as f:
                     json.dump(reminders, f)
             case _:
                 logger.error(f"Command \"{commandInput}\" is not a command.")
                 
+def main():
+    cli()
+
 if __name__ == "__main__":
     main()

@@ -1,10 +1,9 @@
 import sys
 import os
-from components.logging import generateLogFile, newLogger, addCounter
+from components.log import generateLogFile, newLogger, addCounter
 
 def main():
     # Logging
-    
     logName = __file__.split("/")[-1].removesuffix(".py")
     logFile = generateLogFile(logName)
     logger = newLogger(logName, logFile)

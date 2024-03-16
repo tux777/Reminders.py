@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import sys
 
 # Logging config
 
@@ -14,7 +15,18 @@ logging.basicConfig(
 # Log filesystem functions
 
 def generateLogFile(prefix):
-    with open(f"logs/{prefix}-{str(uuid.uuid4()).replace('-', '')}.log", "w") as f:
+    # Check if Reminders directory exists in appdata location, respective to the OS
+    if sys.platform == "darwin":
+        logsFilePath = f"{os.path.expanduser('~')}/Library/Caches/Reminders/"
+    elif sys.platform == "win32":
+        logsFilePath = f"{os.getenv('LOCALAPPDATA')}\\Reminders"
+    elif sys.platform == "linux":
+        logsFilePath = "/var/log/Reminders"
+    
+    if os.path.isdir(logsFilePath) == False:
+        os.mkdir(logsFilePath)
+    
+    with open(f"{logsFilePath}{prefix}-{str(uuid.uuid4()).replace('-', '')}.log", "w") as f:
         f.write("")
         return f.name
 
