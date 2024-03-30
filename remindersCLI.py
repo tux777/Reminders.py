@@ -28,7 +28,30 @@ def cli():
         command = commandInput.split(" ")
         commandName = command[0]
         command.pop(0)
-        commandArgs = command
+        commandArgs = command # just an alias
+        
+        try:
+            commandArgIndicies = []
+            for i,commandArg in enumerate(commandArgs):
+                if commandArg.startswith("\"") and commandArgs[i+1].endswith("\"") and commandArg != "\"\"": # If command argument 1 exists and starts with " and the if a command argument after that ends with ", 
+                    commandArgIndicies.append(i)
+                    
+            if len(commandArgIndicies) >= 1:
+                for i in commandArgIndicies:
+                    commandArgPart1 = commandArgs[i]
+                    commandArgPart2 = commandArgs[i+1]
+
+                    commandArgs.pop(commandArgIndicies[i])
+                    commandArgs.pop(commandArgIndicies[i])
+                    
+                    joinedCommandArg = f"{commandArgPart1} {commandArgPart2}".replace("\"", "")
+                    commandArgs.insert(i, joinedCommandArg)
+            else:
+                pass
+        except IndexError:
+            pass
+        
+        commandArgsLen = len(commandArgs)
         
         # Executed after every command to get up to date json file 
         with open(remindersFilePath, "r") as f:
@@ -46,24 +69,44 @@ def cli():
             case "clear":
                 os.system("clear")
             case "create":
-                name = input(f"Name {commandPrefix} ")
-                title = input(f"Title {commandPrefix} ")
-                message = input(f"Message {commandPrefix} ")
-                time = input(f"Time {commandPrefix} ")
-                
-                newReminder = reminderObjFormat.copy()
-                newReminder["title"] = title
-                newReminder["message"] = message
-                newReminder["time"] = time
-                
-                reminders[name] = newReminder
+                if commandArgsLen >= 1:
+                    name = commandArgs[0]
+                    title = commandArgs[1]
+                    message = commandArgs[2]
+                    time = commandArgs[3]
+                    
+                    newReminder = reminderObjFormat.copy()
+                    newReminder["title"] = title
+                    newReminder["message"] = message
+                    newReminder["time"] = time
+                    
+                    reminders[name] = newReminder
+                elif commandArgsLen == 0:
+                    name = input(f"Name {commandPrefix} ")
+                    title = input(f"Title {commandPrefix} ")
+                    message = input(f"Message {commandPrefix} ")
+                    time = input(f"Time {commandPrefix} ")
+                    
+                    newReminder = reminderObjFormat.copy()
+                    newReminder["title"] = title
+                    newReminder["message"] = message
+                    newReminder["time"] = time
+                    
+                    reminders[name] = newReminder
+                    
             case "delete":
-                if len(commandArgs) >= 1:
+                if commandArgsLen >= 1:
                     reminderName = commandArgs[0]
                     if reminderName in reminders:
                         reminders.pop(reminderName)
                     elif reminderName == "all":
                         reminders.clear()
+                    else:
+                        logger.error(f"Reminder \"{reminderName}\" not found!")
+                elif commandArgsLen == 0:
+                    reminderName = input("Reminder to Delete > ")
+                    if reminderName in reminders:
+                        reminders.pop(reminderName)
                     else:
                         logger.error(f"Reminder \"{reminderName}\" not found!")
                         

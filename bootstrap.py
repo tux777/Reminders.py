@@ -4,9 +4,9 @@ from components.log import generateLogFile, newLogger, addCounter
 
 def main():
     # Logging
-    logName = __file__.split("/")[-1].removesuffix(".py")
-    logFile = generateLogFile(logName)
-    logger = newLogger(logName, logFile)
+    filePath = __file__
+    logFile = generateLogFile(filePath)
+    logger = newLogger(__file__, logFile)
     addCounter(logger)
     sys.excepthook = lambda type, value, tb: logger.error(f"Caught '{type.__name__}' exception: {value}") # Hook exception to log it
 
@@ -15,11 +15,11 @@ def main():
     osName = sys.platform
     match osName:
         case "darwin":
-            logger.info("OS is darwin")
+            logger.info("OS is Darwin")
         case "win32":
-            logger.info("OS is win32")
+            logger.info("OS is Win32")
         case "linux":
-            logger.info("OS is linux")
+            logger.info("OS is Linux")
         case _:
             logger.error('OS is not supported!')
             
@@ -29,13 +29,19 @@ def main():
 
     for req in requirements:
         try:
-            __import__(req)
+            if req == "pyobjus":
+                if osName == "darwin":
+                    __import__(req)
+                else:
+                    continue
+            else:
+                __import__(req)
         except ModuleNotFoundError:
             logger.error(f"Module {req} not found!")
             logger.info("Installing modules...")
             try:
                 pyInterpreter = sys.executable
-                os.system(f"{pyInterpreter} -m pip install -r support/requirements.txt")
+                os.system(f"{pyInterpreter} -m pip install {req}")
                 logger.info("Installed modules!")
             except Exception as err:
                 logger.error(f"{err}")
