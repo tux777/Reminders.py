@@ -1,14 +1,14 @@
 import sys
 import os
-from components.log import generateLogFile, newLogger, addCounter
+import components.log as log
 
 def main():
     # Logging
     filePath = __file__
-    logFile = generateLogFile(filePath)
-    logger = newLogger(__file__, logFile)
-    addCounter(logger)
-    sys.excepthook = lambda type, value, tb: logger.error(f"Caught '{type.__name__}' exception: {value}") # Hook exception to log it
+    logFile = log.generateLogFile(filePath)
+    logger = log.newLogger(__file__, logFile)
+    log.addCounter(logger)
+    sys.excepthook = lambda type, value, tb: log.logException(type, value, tb, logger) # Hook exception to log it
 
     # System Checks
     # OS Check

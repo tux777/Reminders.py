@@ -2,12 +2,34 @@ import os
 import uuid
 import logging
 import sys
+import json
+import traceback
+import types
 
 # Logging config
 
+settings_path = "./components/settings.json"
+with open(settings_path, "r") as f:
+    settings = json.load(f)
+
+logging_settings = settings["logging"]
+match logging_settings["level"]:
+    case "debug":
+        logging_level = logging.DEBUG
+    case "info":
+        logging_level = logging.INFO
+    case "warn":
+        logging_level = logging.WARN
+    case "error":
+        logging_level = logging.ERROR
+    case "critical":
+        logging_level = logging.CRITICAL
+    case _:
+        logging_level = logging.INFO
+
 logFormat = "[%(levelname)s:%(asctime)s] %(message)s"
 logging.basicConfig(
-    level=logging.INFO, 
+    level=logging_level, 
     filemode="w", 
     format= logFormat
 )
@@ -90,3 +112,8 @@ def addCounter(logger: logging.Logger):
     logger.info = infoIncrement
     logger.warn = warnIncrement
     logger.critical = criticalIncrement
+    
+def logException(type, value: str, tb: types.TracebackType, logger: logging.Logger) -> None:
+    tbList = traceback.format_tb(tb)
+    logger.error(f"Caught '{type.__name__}' exception: {value}")
+    logger.debug(f"{tbList}")
