@@ -133,5 +133,5 @@ def addCounter(logger: logging.Logger):
 
 def logException(type, value: str, tb: types.TracebackType, logger: logging.Logger) -> None:
     tbList = traceback.format_tb(tb)
-    logger.error(f"Caught '{type.__name__}' exception: {value}")
+    logger.error(f"Caught '{type.__name__}' Exception: {value}")
     logger.debug(f"{tbList}")
