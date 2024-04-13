@@ -2,15 +2,9 @@ import sys
 import os
 import json
 import components.log as log
+import threading
 
-def main():
-    # Logging
-    filePath = __file__
-    logFile = log.generateLogFile(filePath)
-    logger = log.newLogger(__file__, logFile)
-    log.addCounter(logger)
-    sys.excepthook = lambda type, value, tb: log.logException(type, value, tb, logger) # Hook exception to log it
-
+def main(logger):
     # System Checks
     # OS Check
     osName = sys.platform
@@ -55,7 +49,7 @@ def main():
                     logger.critical(f"Generic OSError exception thrown: {err}")
                 elif type(err) == PermissionError:
                     logger.critical(f"PermissionError exception thrown: {err}\nIf you're on MacOS be sure to give your terminal Full Disk Access")
-
+    
     # PIP requirements checks
     with open("support/requirements.txt", "r") as f:
         requirements = f.read().split("\n")
@@ -88,4 +82,14 @@ def main():
         logger.info("Daemon exited. Shutting down bootstrap.")
 
 if __name__ == "__main__":
-    main()
+    # Logging
+    filePath = __file__
+    logFile = log.generateLogFile(filePath)
+    logger = log.newLogger(__file__, logFile)
+    log.addCounter(logger)
+    sys.excepthook = lambda type, value, tb: log.logException(type, value, tb, logger) # Hook exception to log it
+    
+    logger.debug("Starting bootstrap...")
+    logger.info("Press enter to exit.")
+    threading.Thread(target=main, args=[logger], daemon=True).start()
+    input("")

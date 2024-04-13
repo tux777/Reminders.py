@@ -1,4 +1,6 @@
 commands = {
+    "": {"needsFlags": False, "flags": None},
+    
     "exit": {"needsFlags": False, "flags": None},
     
     "save": {"needsFlags": False, "flags": None},
