@@ -1,0 +1,85 @@
+@import "~@flaticon/flaticon-uicons/css/all/all.rounded.css";
+
+:root {
+  --bg-color: #121212;
+  --important-button-bg: #2d45fa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+}
+
+.input {
+  resize: none;
+  background-color: black;
+  border: 1px solid #353535;
+  border-radius: 5px;
+  outline: none 0 !important;
+  box-shadow: none;
+  padding: 10px;
+  color: white;
+}
+
+.button {
+  display: flex;
+  background-color: white;
+  color: black;
+  border: 0;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  align-items: center;
+  cursor: pointer;
+
+  i {
+    font-size: 15px;
+    line-height: 50%;
+    color: black;
+  }
+
+  transition: 0.15s ease;
+}
+
+.button:hover {
+  background-color: #000;
+  color: white;
+
+  i {
+    color: white;
+  }
+
+  transition: 0.15s ease;
+}
+
+.important-button {
+  background-color: var(--important-button-bg);
+  padding: 7px !important;
+  color: white;
+
+  .important-button-text {
+    font-weight: 600;
+  }
+
+  i {
+    font-size: 13px;
+    color: white;
+  }
+}
+
+.important-button:hover {
+  background-color: white;
+  color: black;
+  transition: 0.15s ease;
+
+  i {
+    color: black;
+  }
+}
+
+.unimportant-text {
+  color: gray;
+}

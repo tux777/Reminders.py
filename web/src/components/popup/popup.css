@@ -1,0 +1,122 @@
+@keyframes pop-in {
+    0% { opacity: 0; transform: scale(0); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pop-out {
+    0% { opacity: 0; transform: scale(1); }
+    100% { opacity: 1; transform: scale(0); }
+}
+
+#popupWrapper {
+    background-color: rgba(5,5,5,0.9);
+    backdrop-filter: blur(2px);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 1;
+    transition: opacity 0.15s ease-in;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    padding: 30px;
+    background-color: #101010;
+    border: 1px solid #353535;
+    border-radius: 10px;
+    box-shadow: 0 8px 3px rgba(0, 0, 0, 0.1);
+    animation: pop-in 0.2s ease
+}
+
+#popupInfo {
+    #popupTitle {
+        margin-bottom: 3px;
+        color: white;
+    }
+
+    #popupDescription {
+        font-weight: 500;
+        color: gray;
+        margin-bottom: 1px;
+    }
+
+    #popupWarning {
+        color: yellow;
+    }
+
+    margin-bottom: 15px;
+}
+
+#popupActions {
+    display: flex;
+
+    .button {
+        padding: 7px;
+    }
+
+    button {
+        margin-right: 10px;
+    }
+
+    button:last-child {
+        margin-right: 0;
+    }
+
+    #popupCancelButton {
+        font-weight: 600;
+    }
+}
+
+
+#savePopup {
+    #popupSaveButton {
+        .important-button-text {
+            margin-left: 5px;
+        }
+    }
+}
+
+#deletePopup {
+    #popupInfo {
+        margin-bottom: 10px;
+    }
+
+    #reminderToDeleteName {
+        background-color: #181818;
+        padding: 5px;
+        border-radius: 3px;
+        margin-right: 2px;
+    }
+}
+
+#createPopup {
+    #popupTitle {
+        margin-bottom: 15px;
+    }
+
+    #popupActions {
+        margin-top: 20px;
+    }
+
+    .popupInput {
+        display: flex;
+        margin-bottom: 10px;
+        width: 90%;
+    }
+
+    #popupCreateButton {
+        .important-button-text {
+            margin-left: 5px;
+        }
+    }
+}
+
+#errorPopup {
+    .okDisabled {
+        cursor: not-allowed;
+    }
+}

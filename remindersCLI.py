@@ -1,19 +1,25 @@
 from colorama import Fore
-from components import CLI
+from python.components import CLI
 import json
 import sys
 import os
-import components.log as log
-
-remindersFilePath = "components/reminders.json"
-reminderObjFormat = {"title": "", "message": "", "time": ""}
+import python.components.log as log
 
 bold = "\033[1m"
 reset = "\033[0m"
 
 def cli(logger=None):
     commandPrefix = ">"
-
+    
+    match sys.platform:
+        case "darwin":
+            remindersFilePath = f"{os.path.expanduser('~')}/.config/Reminders/reminders.json"
+        case "win32":
+            remindersFilePath = f"{os.getenv('APPDATA')}\\Reminders\\reminders.json"
+        case "linux":
+            remindersFilePath = f"{os.path.expanduser('~')}/.config/Reminders/reminders.json"
+            
+    
     # Used for saving functionality
     with open(remindersFilePath, "r") as f:
             reminders = json.load(f)
@@ -61,7 +67,7 @@ def cli(logger=None):
                         message = cmd.args["-message"][0]
                         time = cmd.args["-time"][0]
 
-                        reminder = reminderObjFormat.copy()
+                        reminder = CLI.reminderJsonFormat.copy()
                         reminder["title"] = title
                         reminder["message"] = message
                         reminder["time"] = time
@@ -72,7 +78,7 @@ def cli(logger=None):
                     message = input(f"Message {commandPrefix} ")
                     time = input(f"Time {commandPrefix} ")
 
-                    reminder = reminderObjFormat.copy()
+                    reminder = CLI.reminderJsonFormat.copy()
                     reminder["title"] = title
                     reminder["message"] = message
                     reminder["time"] = time
