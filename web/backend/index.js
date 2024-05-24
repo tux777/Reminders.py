@@ -25,7 +25,7 @@ switch (osName) {
         var remindersFilePath = path.join(os.homedir(), '.config', 'Reminders', 'reminders.json')
         break;
     case "win32":
-        var remindersFilePath = path.join(process.env("LOCALAPPDATA"), 'Reminders', 'reminders.json')
+        var remindersFilePath = path.join(path.join(os.homedir(), "AppData", "local"), 'Reminders', 'reminders.json')
         break;
     default:
         console.error(`Unsupported OS: ${os}`)

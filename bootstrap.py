@@ -2,8 +2,8 @@ import sys
 import os
 import json
 import threading
+import subprocess
 import python.components.log as log
-from subprocess import Popen
 from python.components.notification_daemon import startDaemon
 
 def main(logger):
@@ -103,8 +103,15 @@ def main(logger):
             
             case "web":
                 logger.info("Starting web mode...")
-                thread_react = threading.Thread(target=Popen, args=(["npm", "--prefix", "./web", "start"],))
-                thread_react_backend = threading.Thread(target=Popen, args=(["npm", "--prefix", "./web/backend", "start"],))
+                
+                react_prefix = os.path.join(os.getcwd(), "web")
+                react_backend_prefix = os.path.join(os.getcwd(), "web/backend")
+
+                cmd_react = ["npm", "--prefix", react_prefix, "start"]
+                cmd_react_backend = ["npm", "--prefix", react_backend_prefix, "start"]
+                
+                thread_react = threading.Thread(target=subprocess.run, args=(cmd_react,), kwargs={"shell": True})
+                thread_react_backend = threading.Thread(target=subprocess.run, args=(cmd_react_backend,), kwargs={"shell": True})
                 thread_notification_daemon = threading.Thread(target=startDaemon)
                 
                 thread_react.start()
