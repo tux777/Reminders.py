@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import threading
+import time
 import subprocess
 import python.components.log as log
 from python.components.notification_daemon import startDaemon
@@ -97,26 +98,60 @@ def main(logger):
 
     try:
         match settings["mode"]:
+            
             case "python":
                 logger.info("Starting python mode...")
                 startDaemon()
             
             case "web":
+                match osName:
+                    case "win32":
+                        shellEnabled = True
+                    case _:
+                        shellEnabled = False
+                        
                 logger.info("Starting web mode...")
+                logger.info("Checking if npm dependencies are installed at web...")
+                    
                 
                 react_prefix = os.path.join(os.getcwd(), "web")
                 react_backend_prefix = os.path.join(os.getcwd(), "web/backend")
-
+                react_modules = os.path.join(os.getcwd(), "web/node_modules")
+                react_backend_modules = os.path.join(os.getcwd(), "web/backend/node_modules")
+                
+                working_dir = os.getcwd()
+                
+                if os.path.isdir(react_modules):
+                    logger.info("NPM dependencies are already installed!")
+                else:
+                    logger.info("NPM dependencies are not installed, installing them now...")
+                    os.chdir(react_prefix)
+                    subprocess.run(["npm", "install"], shell=shellEnabled)
+                    os.chdir(working_dir)
+                    
+                logger.info("Checking if npm dependencies are installed at web/backend...")
+                
+                if os.path.isdir(react_backend_modules):
+                    logger.info("NPM dependencies are already installed!")
+                else:
+                    logger.info("NPM dependencies are not installed, installing them now...")
+                    os.chdir(react_backend_prefix)
+                    subprocess.run(["npm", "install"], shell=shellEnabled)
+                    os.chdir(working_dir)
+                    
                 cmd_react = ["npm", "--prefix", react_prefix, "start"]
                 cmd_react_backend = ["npm", "--prefix", react_backend_prefix, "start"]
                 
-                thread_react = threading.Thread(target=subprocess.run, args=(cmd_react,), kwargs={"shell": True})
-                thread_react_backend = threading.Thread(target=subprocess.run, args=(cmd_react_backend,), kwargs={"shell": True})
-                thread_notification_daemon = threading.Thread(target=startDaemon)
+                thread_react = threading.Thread(target=subprocess.run, args=(cmd_react,), kwargs={"shell": shellEnabled}, daemon=True)
+                thread_react_backend = threading.Thread(target=subprocess.run, args=(cmd_react_backend,), kwargs={"shell": shellEnabled}, daemon=True)
+                thread_notification_daemon = threading.Thread(target=startDaemon, daemon=True)
                 
                 thread_react.start()
                 thread_react_backend.start()
                 thread_notification_daemon.start()
+                
+                while True:
+                    time.sleep(1)
     except KeyError:
         print("1) Python Mode")
         print("2) Web Mode")
