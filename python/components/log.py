@@ -20,7 +20,7 @@ try:
     with open(settingsFilePath, "r") as f:
         settings = json.load(f)
 except FileNotFoundError:
-    settings = {"logging": {"level": "info"}}
+    settings = {"logging": {"level": "debug"}}
 
 logging_settings = settings["logging"]
 match logging_settings["level"]:

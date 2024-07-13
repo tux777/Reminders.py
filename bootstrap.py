@@ -5,15 +5,16 @@ import threading
 import time
 import subprocess
 import python.components.log as log
-from python.components.notification_daemon import startDaemon
 
 def main(logger):
     # * System Checks
     # * OS Check
     osName = sys.platform
+    pyInterpreter = sys.executable
     match osName:
         case "darwin":
             logger.debug("OS is Darwin")
+            pyInterpreter = sys.executable
             settingsFilePath = f"{os.path.expanduser('~')}/.config/Reminders/"
         case "win32":
             logger.debug("OS is Win32")
@@ -62,13 +63,57 @@ def main(logger):
     with open(f'{settingsFilePath}settings.json', "r") as f:
         settings = json.load(f)
     
+    # Python VENV check
+    match osName:
+        case "win32":
+            venvDirectories = ["Include", "Lib", "Scripts"]
+        case _:
+            venvDirectories = ["bin", "include", "lib"]
+    venvFile = "pyvenv.cfg"
+    currentDir = os.getcwd()
+    match osName:
+        case "win32":
+            venvFilePath = f"{currentDir}\\{venvFile}"
+            venvPythonInterpreter = f"{currentDir}\\Scripts\\python.exe"
+            bootstrapPath = f"{currentDir}\\bootstrap.py"
+        case _:
+            venvFilePath = f"{currentDir}/{venvFile}"
+            venvPythonInterpreter = f"{currentDir}/bin/python3"
+            bootstrapPath = f"{currentDir}/bootstrap.py"
+    
+    creatingVenv = False
+    for dir in venvDirectories:    
+        match osName:
+            case "win32":
+                dirPath = f"{currentDir}\\{dir}"
+            case _:
+                dirPath = f"{currentDir}/{dir}"
+
+        if creatingVenv == False:
+            if os.path.isdir(dirPath) == False or os.path.isfile(venvFilePath) == False:
+                creatingVenv = True
+                logger.debug("Python ENV not created, creating one...")
+                subprocess.run([pyInterpreter, "-m", "venv", "."])
+        
+        def runInVenv():
+            logger.debug("Rerunning script in Python VENV")
+            args = [venvPythonInterpreter, bootstrapPath] + sys.argv[1:]
+            os.execv(venvPythonInterpreter, args)
+        
+        match osName:
+            case "win32":
+                if not sys.executable.split("\\")[-3] == "Reminders.py":
+                    runInVenv()
+            case _:
+                if not sys.executable.split("/")[-3] == "Reminders.py":
+                    runInVenv()
+    
     # PIP requirements checks
     with open("python/support/requirements.txt", "r") as f:
         requirements = f.read().split("\n")
-
-    i = 0
-    for req in requirements:
-        i+=1
+        
+    for i in range(len(requirements)):
+        req = requirements[i]
         if i >= 4:
             logger.critical("Failed to download requirements successfully. Check your internet connection and try again.")
             exit()
@@ -82,11 +127,10 @@ def main(logger):
                 __import__(req)
         except ModuleNotFoundError:
             logger.error(f"Module {req} not found!")
-            logger.info("Installing modules...")
+            logger.info("Installing python modules...")
             try:
-                pyInterpreter = sys.executable
-                os.system(f"{pyInterpreter} -m pip install {req}")
-                logger.info("Installed modules!")
+                os.system(f"{venvPythonInterpreter} -m pip install {req}")
+                logger.info("Installed python modules!")
             except Exception as err:
                 logger.error(f"{err}")
 
@@ -96,9 +140,9 @@ def main(logger):
 
     # Reminders Mode
 
+    from python.components.notification_daemon import startDaemon
     try:
         match settings["mode"]:
-            
             case "python":
                 logger.info("Starting python mode...")
                 startDaemon()
@@ -146,8 +190,11 @@ def main(logger):
                 thread_react_backend = threading.Thread(target=subprocess.run, args=(cmd_react_backend,), kwargs={"shell": shellEnabled}, daemon=True)
                 thread_notification_daemon = threading.Thread(target=startDaemon, daemon=True)
                 
+                logger.debug("Starting thread_react...")
                 thread_react.start()
+                logger.debug("Starting thread_react_backend...")
                 thread_react_backend.start()
+                logger.debug("Starting thread_notification_daemon...")
                 thread_notification_daemon.start()
                 
                 while True:

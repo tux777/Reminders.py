@@ -29,7 +29,9 @@ body {
   display: flex;
   background-color: white;
   color: black;
-  border: 0;
+  padding: 7px;
+  border: 1px;
+  border-color: #fff;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   align-items: center;
@@ -45,11 +47,11 @@ body {
 }
 
 .button:hover {
-  background-color: #000;
-  color: white;
+  background-color: #fff;
+  color: black;
 
   i {
-    color: white;
+    color: black;
   }
 
   transition: 0.15s ease;
@@ -57,7 +59,6 @@ body {
 
 .important-button {
   background-color: var(--important-button-bg);
-  padding: 7px !important;
   color: white;
 
   .important-button-text {
@@ -71,14 +72,16 @@ body {
 }
 
 .important-button:hover {
-  background-color: white;
+  background-color: #fff;
   color: black;
-  transition: 0.15s ease;
 
   i {
     color: black;
   }
+
+  transition: 0.15s ease;
 }
+
 
 .unimportant-text {
   color: gray;
