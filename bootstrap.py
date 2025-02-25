@@ -7,6 +7,7 @@ import subprocess
 import python.components.log as log
 
 def main(logger):
+    
     # * System Checks
     # * OS Check
     osName = sys.platform
@@ -199,19 +200,13 @@ def main(logger):
                 
                 while True:
                     time.sleep(1)
-    except KeyError:
-        print("1) Python Mode")
-        print("2) Web Mode")
-            
-        mode = input("No mode set, select a mode and press enter to continue. > ")
-        match mode:
-            case "1":
-                settings["mode"] = "python"
-            case "2":
-                settings["mode"] = "web"
             case _:
+                print("1) Python Mode")
+                print("2) Web Mode")
+                        
+                mode = ""
                 while True:
-                    mode = input("Invalid mode selected. Please select a valid mode. > ")
+                    mode = input("No mode set, select a mode and press enter to continue. > ")
                     match mode:
                         case "1":
                             settings["mode"] = "python"
@@ -221,6 +216,26 @@ def main(logger):
                             break
                         case _:
                             continue
+                        
+                with open(f'{settingsFilePath}settings.json', "w") as f:
+                    json.dump(settings, f)
+                
+    except KeyError:
+        print("1) Python Mode")
+        print("2) Web Mode")
+            
+        mode = ""
+        while True:
+            mode = input("No mode set, select a mode and press enter to continue. > ")
+            match mode:
+                case "1":
+                    settings["mode"] = "python"
+                    break
+                case "2":
+                    settings["mode"] = "web"
+                    break
+                case _:
+                    continue
                             
         with open(f'{settingsFilePath}settings.json', "w") as f:
                 json.dump(settings, f)
